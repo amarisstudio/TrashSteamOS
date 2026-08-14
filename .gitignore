@@ -1,0 +1,11 @@
+# Large binary artifacts — build them via scripts/, or fetch from a release.
+# (GitHub blocks >100MB files; the image is 7.6GB, the kernel pkg is 142MB.)
+artifacts/*.img
+artifacts/*.img.sha256
+artifacts/*.img.bz2
+artifacts/*.pkg.tar.zst
+
+# macOS noise
+.DS_Store
+._*
+artifacts/trashcan_key.pub

@@ -1,0 +1,5 @@
+251a27f715ca2cf57c5e03795f104aac62b6aefe3727107380b7e1af4e90fb1f  install-si-kernel.sh
+b153a1f4918f5722288d6fa814a6ee3cea10d4ca4df3dc152c2eb433815eecb6  restore-si-kernel.sh
+6a6d4ec58a31582a50a233177aad6cc04cb02c0f0489a8d76baa855b0c30e39c  si-kernel-restore.service
+11af6fb4ae88dd4a111930ff88f1631db641330f53d588c39f20c00c6621a02a  linux-neptune-616-6.16.12.valve27-2.1-x86_64.pkg.tar.zst
+134f5488eeaf5d5f4fe7364686df294695fd5713366390af2064eab58a7ec533  linux-neptune-616-headers-6.16.12.valve27-2.1-x86_64.pkg.tar.zst

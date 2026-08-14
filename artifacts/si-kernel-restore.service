@@ -1,0 +1,14 @@
+[Unit]
+Description=Restore SI-enabled linux-neptune-616 kernel after SteamOS update
+# Only meaningful once the system is fully up; network not required.
+After=multi-user.target
+
+[Service]
+Type=oneshot
+# Prefer the /home copy (persists across OS updates); fall back to /opt
+# (baked into the installer image, present on fresh installs before the
+# first boot has populated /home).
+ExecStart=/bin/bash -c 'for d in /home/deck/si-kernel /opt/si-kernel; do [ -x "$d/restore-si-kernel.sh" ] && exec "$d/restore-si-kernel.sh"; done; exit 0'
+
+[Install]
+WantedBy=multi-user.target
