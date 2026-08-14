@@ -134,16 +134,21 @@ ls /mnt/root/opt/si-tools/
 # Replace with the steam-jupiter-stable behavior (verified on-device
 # 2026-08-14). Proper fix post-install: pacman -S steam-jupiter-stable
 # (documented in INSTALL.md); this patch makes the interim behavior sane.
-cp /mnt/root/usr/bin/steam /mnt/root/usr/bin/steam.oobe-orig
-cat > /mnt/root/usr/bin/steam <<'EOF'
+# /usr/bin/steam is a symlink to steam-jupiter in the image — resolve it and
+# patch the real file (leaving the symlink itself intact).
+STEAMBIN=/mnt/root/usr/bin/steam
+if [ -L "$STEAMBIN" ]; then STEAMBIN="/mnt/root$(readlink "$STEAMBIN")"; fi
+cp "$STEAMBIN" "${STEAMBIN}.oobe-orig"
+cat > "$STEAMBIN" <<'EOF'
 #!/bin/bash
 # Patched by SI installer build: steam-jupiter-oobe's wiping entrypoint
-# replaced with persistent stable-style behavior. Original backed up as
-# /usr/bin/steam.oobe-orig. Recommended: pacman -S steam-jupiter-stable.
+# replaced with persistent stable-style behavior. Original backed up next to
+# this file as *.oobe-orig. Recommended: pacman -S steam-jupiter-stable.
 set -euo pipefail
 exec /usr/lib/steam/steam -steamdeck "$@"
 EOF
-chmod 755 /mnt/root/usr/bin/steam
+chmod 755 "$STEAMBIN"
+echo "patched launcher: $STEAMBIN (backup: ${STEAMBIN}.oobe-orig)"
 
 # Image v2: GRUB defaults for the INSTALLED system. grub-mkconfig reads
 # /etc/default/grub when the installed system regenerates its own boot config,
