@@ -3,7 +3,7 @@
 FROM --platform=linux/amd64 archlinux:base-devel
 
 # pacman's seccomp download sandbox breaks under Rosetta emulation
-# ("error restricting syscalls via seccomp") — disable it in-container.
+# ("error restricting syscalls via seccomp"). Disable it in-container.
 RUN sed -i '/^\[options\]/a DisableSandbox' /etc/pacman.conf
 
 # makedepends from the linux-neptune-616 PKGBUILD, plus git/openssh (source

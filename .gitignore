@@ -1,11 +1,16 @@
-# Large binary artifacts — build them via scripts/, or fetch from a release.
-# (GitHub blocks >100MB files; the image is 7.6GB, the kernel pkg is 142MB.)
+# Large binary artifacts. Build them via scripts/ or download from the GitHub
+# release. GitHub blocks files over 100 MB in git; the image alone is 8 GB.
 artifacts/*.img
-artifacts/*.img.sha256
-artifacts/*.img.bz2
+artifacts/*.img.*
 artifacts/*.pkg.tar.zst
+artifacts/steamdeck-oobe-repair-*
 
-# macOS noise
+# Local keys
+artifacts/trashcan_key.pub
+artifacts/trashcan_key
+
+# macOS and Electron noise
 .DS_Store
 ._*
-artifacts/trashcan_key.pub
+DawnCache/
+GPUCache/

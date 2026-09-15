@@ -17,7 +17,7 @@ if ! ls "${PKGS[@]}" >/dev/null 2>&1; then
 fi
 
 echo "==> Staging kernel package + restore tooling in /home/deck/si-kernel (survives OS updates)"
-# Kernel only — the headers package is for DKMS, depends on pahole (network
+# Kernel only. The headers package is for DKMS, depends on pahole (network
 # fetch), and is not needed to boot. Install it manually later if you ever
 # need to build out-of-tree modules.
 mkdir -p /home/deck/si-kernel

@@ -1,15 +1,16 @@
 #!/bin/bash
 # Installs the SI kernel + self-heal onto the CURRENT (genuine SteamOS) slot.
-# Run as: curl -s http://192.168.86.21:8765/fix-this-slot.sh | sudo bash
+# Run from the artifacts/ folder on the USB stick (the kernel package,
+# restore-si-kernel.sh and si-kernel-restore.service must sit next to it):
+#   cd /run/media/deck/<USB_LABEL>/artifacts && sudo bash fix-this-slot.sh
 set -euo pipefail
-MAC=http://192.168.86.21:8765
+SRC=${SRC:-$(cd "$(dirname "$0")" && pwd)}
 
-echo "==> Fetching SI kernel package from the Mac"
+echo "==> Staging SI kernel package from $SRC"
 cd /home/deck
 mkdir -p si-kernel
-curl -sf -o si-kernel/linux-neptune-616-6.16.12.valve27-2.1-x86_64.pkg.tar.zst \
-  "$MAC/linux-neptune-616-6.16.12.valve27-2.1-x86_64.pkg.tar.zst"
-curl -sf -o si-kernel/restore-si-kernel.sh "$MAC/restore-si-kernel.sh"
+cp "$SRC"/linux-neptune-616-6.16.12.valve27-2.1-x86_64.pkg.tar.zst si-kernel/
+cp "$SRC"/restore-si-kernel.sh si-kernel/
 chmod +x si-kernel/restore-si-kernel.sh
 chown -R deck:deck si-kernel
 
@@ -18,7 +19,7 @@ steamos-readonly disable
 pacman -U --noconfirm /home/deck/si-kernel/linux-neptune-616-*.pkg.tar.zst
 
 echo "==> Installing self-heal service + keep-list on this slot"
-curl -sf -o /etc/systemd/system/si-kernel-restore.service "$MAC/si-kernel-restore.service"
+cp "$SRC"/si-kernel-restore.service /etc/systemd/system/si-kernel-restore.service
 systemctl daemon-reload
 systemctl enable si-kernel-restore.service
 mkdir -p /etc/atomic-update.conf.d
@@ -34,6 +35,6 @@ mkdir -p /etc/sddm.conf.d
 printf '[Autologin]\nUser=deck\nSession=plasma.desktop\n' > /etc/sddm.conf.d/zz-local.conf
 
 steamos-readonly enable
-echo "==> DONE. Rebooting in 5 seconds — display should return on the SI kernel."
+echo "==> DONE. Rebooting in 5 seconds. Display should return on the SI kernel."
 sleep 5
 reboot

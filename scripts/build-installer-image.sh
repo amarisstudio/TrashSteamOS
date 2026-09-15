@@ -19,9 +19,9 @@
 #
 # Image v3 corrections (2026-08-14, after full bring-up on the Mac Pro):
 #   - amdgpu.dc=1 (NOT dc=0): DC display core is OPT-IN on SI hardware and
-#     works on DCE 6.0 — it enables atomic modesetting, which gamescope
+#     works on DCE 6.0. It enables atomic modesetting, which gamescope
 #     (Gaming Mode) requires. dc=0 was never load-bearing.
-#   - SDDM session: plasmax11.desktop — kwin_wayland picks the wrong GPU on
+#   - SDDM session: plasmax11.desktop. kwin_wayland picks the wrong GPU on
 #     the dual-D300 Mac Pro (black screen); Plasma X11 handles multi-GPU.
 #   - Keep-list expanded so a post-install OTA to genuine SteamOS preserves
 #     the whole configuration (recommended flow: install -> OTA immediately).
@@ -31,10 +31,13 @@
 # already present in artifacts/.
 set -euo pipefail
 
-PROJ=/Users/zacharystaines/Documents/code/TrashSteamOS
-SCRATCH=/private/tmp/claude-501/-Users-zacharystaines-Documents-code-TrashSteamOS/2b71b9a6-3b2a-4b2d-afdc-8b78663bdaf0/scratchpad
-PRISTINE=$SCRATCH/steamdeck-oobe-repair-20260707.10-3.8.14.img
-OUT=$PROJ/artifacts/steamos-3.8.14-si-installer.img
+PROJ=$(cd "$(dirname "$0")/.." && pwd)
+# Valve's pristine recovery image, decompressed (.img, not .img.bz2). Download
+# from https://steamdeck-images.steamos.cloud/recovery/ and bunzip2 it.
+# Override with PRISTINE=/path/to/image.img if it lives elsewhere.
+PRISTINE=${PRISTINE:-$PROJ/artifacts/steamdeck-oobe-repair-20260707.10-3.8.14.img}
+OUT=${OUT:-$PROJ/artifacts/steamos-3.8.14-si-installer.img}
+[ -f "$PRISTINE" ] || { echo "ERROR: pristine image not found at $PRISTINE"; exit 1; }
 
 # Partition offsets (sectors, from the GPT of the pristine image)
 ROOT_OFF=$((655360*512)); ROOT_SIZE=$((10485760*512))
@@ -42,7 +45,7 @@ HOME_OFF=$((11665408*512)); HOME_SIZE=$((4194271*512))
 EFI_OFF=$((131072*512)); EFI_SIZE=$((262144*512))
 
 # Image v3 toggles (set to 0 to disable)
-SI_DC1=${SI_DC1:-1}                        # append amdgpu.dc=1 (enable DC display core on DCE6 —
+SI_DC1=${SI_DC1:-1}                        # append amdgpu.dc=1 (enable DC display core on DCE6;
                                            # required for atomic modesetting / gamescope / Gaming Mode)
                                            # in EFI grub.cfg AND rootfs /etc/default/grub
 # Default 0 since the SDDM ghost-user autologin fix landed (the graphical repair
@@ -71,7 +74,7 @@ btrfs property set /mnt/root ro false
 
 # Stage packages + restore script on the image rootfs (survives the dd to
 # target; /opt is the bootstrap source for /home staging on first boot)
-# Kernel package only — the headers package depends on pahole, which would
+# Kernel package only. The headers package depends on pahole, which would
 # need a network fetch (unavailable in this chroot, and undesirable for the
 # offline self-heal path). Headers are only for DKMS and stay on the USB.
 mkdir -p /mnt/root/opt/si-kernel
@@ -92,7 +95,7 @@ cp /a/si-kernel-restore.service /mnt/root/etc/systemd/system/
 mkdir -p /mnt/root/etc/systemd/system/multi-user.target.wants
 ln -sf /etc/systemd/system/si-kernel-restore.service \
       /mnt/root/etc/systemd/system/multi-user.target.wants/si-kernel-restore.service
-# v3: expanded keep-list — after an OTA to genuine SteamOS, the new slot
+# v3: expanded keep-list. After an OTA to genuine SteamOS, the new slot
 # keeps the self-heal wiring, the display fix, and the session configs. This
 # makes "install, then take the OTA immediately" the golden path: you end up
 # on Valve's real OS with every fix carried across automatically.
@@ -107,8 +110,8 @@ EOF
 
 # SDDM autologin fix (v2, session corrected in v3). The shipped config
 # autologins user 'steamos', which does not exist on this image (uid 1000 is
-# 'deck') — SDDM fails autologin and the greeter dies with it: unrecoverable
-# black screen. v3: session is Plasma X11, NOT Wayland — kwin_wayland grabs
+# 'deck'). SDDM fails autologin and the greeter dies with it: unrecoverable
+# black screen. v3: session is Plasma X11, NOT Wayland. kwin_wayland grabs
 # the wrong GPU on the dual-D300 Mac Pro (verified 2026-08-14); X11 handles
 # multi-GPU correctly. Drop-in sorts last, overrides the stock config.
 mkdir -p /mnt/root/etc/sddm.conf.d
@@ -129,12 +132,12 @@ ls /mnt/root/opt/si-tools/
 
 # Image v2: neuter the steam-jupiter-oobe launcher. The recovery image ships an
 # OOBE /usr/bin/steam that rm -rf's the user's ENTIRE Steam install on every
-# launch ("fresh steam per boot") — fine on a repair stick, catastrophic on a
+# launch ("fresh steam per boot"). Fine on a repair stick, catastrophic on a
 # dd-installed daily driver: endless client re-updates + login amnesia.
 # Replace with the steam-jupiter-stable behavior (verified on-device
 # 2026-08-14). Proper fix post-install: pacman -S steam-jupiter-stable
 # (documented in INSTALL.md); this patch makes the interim behavior sane.
-# /usr/bin/steam is a symlink to steam-jupiter in the image — resolve it and
+# /usr/bin/steam is a symlink to steam-jupiter in the image. Resolve it and
 # patch the real file (leaving the symlink itself intact).
 STEAMBIN=/mnt/root/usr/bin/steam
 if [ -L "$STEAMBIN" ]; then STEAMBIN="/mnt/root$(readlink "$STEAMBIN")"; fi
@@ -168,7 +171,7 @@ fi
 echo "== /etc/default/grub after image v3 patch =="
 grep -E '^(GRUB_TIMEOUT|GRUB_CMDLINE_LINUX_DEFAULT)=' "$GRUBDEF"
 
-# PENDING DIAGNOSIS — deliberately DISABLED: console-first default for the
+# PENDING DIAGNOSIS. Deliberately DISABLED: console-first default for the
 # INSTALLED system (not just the USB). Uncomment only once GPU bring-up on the
 # FirePro D300 has been diagnosed and a console-first install is the decision:
 # ln -sf /usr/lib/systemd/system/multi-user.target /mnt/root/etc/systemd/system/default.target

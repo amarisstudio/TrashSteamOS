@@ -1,6 +1,6 @@
 #!/bin/bash
 # Makes amdgpu.dc=1 permanent: /etc/default/grub (keep-listed) + regenerate.
-# Run: curl -s http://192.168.86.21:8765/make-dc1-permanent.sh | sudo bash
+# Run: sudo bash make-dc1-permanent.sh
 set -e
 GD=/etc/default/grub
 grep -q 'amdgpu\.dc=1' "$GD" || sed -i 's/^GRUB_CMDLINE_LINUX_DEFAULT="/GRUB_CMDLINE_LINUX_DEFAULT="amdgpu.dc=1 /' "$GD"

@@ -1,6 +1,6 @@
 #!/bin/bash
 # Reverts the dc=1 test: restores the pre-test grub.cfg backup.
-# Run: curl -s http://192.168.86.21:8765/dc-test-off.sh | sudo bash
+# Run: sudo bash dc-test-off.sh
 set -e
 CFG=/efi/EFI/steamos/grub.cfg
 [ -f "$CFG.pre-dc-test" ] || { echo "no backup found"; exit 1; }

@@ -28,8 +28,8 @@ evlaV GitHub mirrors.
   unchanged so the package is byte-for-byte comparable to stock except the SI change.
 - `CONFIG_DRM_AMD_DC_SI=y` returns automatically from the Arch base config once SI
   is enabled (its only blocker was the SI dependency). Report it in the verify diff;
-  do not suppress it — it is required for proper display-core support on SI.
-- `CONFIG_DRM_RADEON` stays unset — with radeon absent, `amdgpu.si_support` defaults
+  do not suppress it; it is required for proper display-core support on SI.
+- `CONFIG_DRM_RADEON` stays unset; with radeon absent, `amdgpu.si_support` defaults
   to 1, so no kernel cmdline flags are needed.
 - Verify `.config` AFTER `make olddefconfig` and BEFORE compiling; abort if the
   options were dropped (unmet deps) and report the dependency chain instead.
@@ -98,7 +98,7 @@ evlaV GitHub mirrors.
   (losetup works in Docker Desktop's Linux VM).
 - [ ] Map: ESP/EFI partitions, recovery rootfs, and the *payload* rootfs image the
   installer writes to the target disk. Determine whether the payload carries its own
-  kernel (it does — the installed system's kernel comes from the payload, not the
+  kernel (it does: the installed system's kernel comes from the payload, not the
   recovery boot kernel).
 - [ ] Feasibility verdict: need to swap kernel in BOTH the recovery boot chain
   (so the installer itself displays on the D300s) and the payload rootfs (so the
@@ -122,13 +122,13 @@ evlaV GitHub mirrors.
   pacman handles same-name upgrade/reinstall. Noted in INSTALL.md.
 - Risk: 7.7 GiB VM RAM → use -j8 and retry with -j4 if OOM (exit 137 / cc1 killed).
 - Risk: headers package builds fine under Rosetta; no known blockers. BTF (pahole)
-  is the slowest single-threaded step — do not panic at the long tail.
+  is the slowest single-threaded step; do not panic at the long tail.
 
 ## Phase 2 recon results (task 6 complete)
 
 - Image: `steamdeck-oobe-repair-20260707.10-3.8.14.img` (7.56 GiB raw). GPT:
   p1 64M ESP (steamcl), p2 128M efi (GRUB), p3 5G rootfs ext4 (plain, NO verity),
-  p4 256M var, p5 2G home ext4 **with casefold** (LinuxKit kernel can't mount —
+  p4 256M var, p5 2G home ext4 **with casefold** (LinuxKit kernel can't mount, 
   use debugfs/e2fsprogs-extra userspace tools).
 - Boot chain: steamcl (p1) → grubx64.efi + grub.cfg (p2) → kernel loaded FROM
   ROOTFS `/boot/vmlinuz-linux-neptune-616` by fs-UUID search. So `pacman -U` in a
@@ -159,6 +159,6 @@ evlaV GitHub mirrors.
   `-dirty` to kernelrelease → package() path mismatch ("rm .../build: No such
   file"). Fix: `git update-index --assume-unchanged tools/lib/bpf/libbpf.c`
   (patch stays applied, dirty flag clears), rm -rf pkg staging, re-run makepkg
-  --noextract — reuses all objects, relinks vmlinux/BTF, re-stamps modules
+  --noextract reuses all objects, relinks vmlinux/BTF, re-stamps modules
   (~30-60 min). Apply future patches BEFORE first build and set assume-unchanged
   immediately.

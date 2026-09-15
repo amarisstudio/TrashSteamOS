@@ -1,6 +1,11 @@
 # Installing the SI-enabled kernel on the SteamOS 3.8 Mac Pro
 
-Everything in this `artifacts/` folder goes onto the USB stick.
+This covers the kernel-only install onto an existing SteamOS system, the
+fresh-install path with the custom image, and how updates are survived.
+
+The binaries (kernel packages and the installer image) are on the
+[GitHub release](https://github.com/amarisstudio/TrashSteamOS/releases/latest).
+Put them together with the scripts from this `artifacts/` folder on a USB stick.
 
 ## What you're installing
 
@@ -41,10 +46,10 @@ it's only needed for building out-of-tree (DKMS) modules and it pulls in
 `sudo pacman -U linux-neptune-616-headers-*.pkg.tar.zst` (with network up).
 
 Notes:
-- pacman will say **"reinstalling linux-neptune-616"** — expected, the version
+- pacman will say **"reinstalling linux-neptune-616"**. Expected: the version
   string matches stock.
-- mkinitcpio may print `==> ERROR: module not found: ...` for a few modules —
-  known-harmless on SteamOS custom kernel installs.
+- mkinitcpio may print `==> ERROR: module not found: ...` for a few modules.
+  Known harmless on SteamOS custom kernel installs.
 - The pacman hooks rebuild the initramfs and update the boot entries for you;
   no manual bootctl/grub work is needed.
 
@@ -60,14 +65,13 @@ lspci -k | grep -A3 VGA   # both D300s should show 'Kernel driver in use: amdgpu
 No `amdgpu.si_support=1` cmdline flag is needed: radeon is not built, so
 si_support/cik_support default to 1 in this configuration.
 
-## Surviving SteamOS updates — read this, it matters
+## Surviving SteamOS updates. Read this, it matters
 
-**The thing you asked for — keep-listing the kernel in
-`/etc/atomic-update.conf.d/` — does not work, and I'd rather tell you than
-fake it.** I read the actual implementation in Valve's
-`steamos-customizations` (rauc/atomic-update-keep.conf + post-install.sh):
-the keep-list mechanism only preserves paths under **/etc**. A SteamOS update
-writes a complete new rootfs image to the other A/B slot, kernel included —
+**The obvious approach, keep-listing the kernel in
+`/etc/atomic-update.conf.d/`, does not work.** The actual implementation in
+Valve's `steamos-customizations` (rauc/atomic-update-keep.conf plus
+post-install.sh) only preserves paths under **/etc**. A SteamOS update
+writes a complete new rootfs image to the other A/B slot, kernel included.
 `/usr/lib/modules` and the boot files are replaced wholesale and no conf file
 can exempt them. (The linux-charcoal project hit the same wall; their answer
 is "reinstall after every update".)
@@ -86,7 +90,7 @@ So instead this install sets up a **self-healing loop** out of the pieces that
 
 Net effect: after a SteamOS update the machine boots once with no display
 (stock kernel), silently reinstalls the SI kernel, reboots itself, and comes
-back with working graphics — no keyboard required.
+back with working graphics. No keyboard required.
 
 **Caveat:** if a future SteamOS update jumps to a new kernel major
 (linux-neptune-618 is already in Valve's tree), the reinstalled 6.16 package
@@ -96,22 +100,24 @@ still boot, but treat "an update happened" as your cue to rebuild.
 
 ## The custom installer image (fresh installs)
 
-`steamos-3.8.14-si-installer.img` (+ `.sha256`) is Valve's official
+`steamos-3.8.14-si-installer.img.xz` (on the release, split into two parts;
+see the README quick start for joining and verifying) is Valve's official
 `steamdeck-oobe-repair-20260707.10-3.8.14` image with the SI kernel installed
 into its rootfs, the self-heal service pre-wired, and one quality-of-life
 patch. Because the installer literally copies its own rootfs onto the target
 disk, both the *live installer* and *every system it installs* boot the SI
-kernel — no post-install kernel swap needed.
+kernel. No post-install kernel swap needed.
 
 Flash it:
 
 ```bash
-# balenaEtcher: just pick the .img. Or dd (find the right disk with diskutil list):
+# balenaEtcher: pick the .img.xz directly. Or dd (find the right disk with diskutil list):
+xz -d steamos-3.8.14-si-installer.img.xz
 sudo dd if=steamos-3.8.14-si-installer.img of=/dev/rdiskN bs=4m status=progress
 ```
 
 On the trash can, boot from USB (hold Option at the chime, pick the EFI USB
-entry). To reimage the internal disk — **this wipes it**:
+entry). To reimage the internal disk (**this wipes it**):
 
 ```bash
 cd ~/tools
@@ -121,7 +127,7 @@ cd ~/tools
 sudo DISK=/dev/sda DISK_SUFFIX= ./repair_device.sh all
 ```
 
-Verify the flash if in doubt: `shasum -a 256 -c steamos-3.8.14-si-installer.img.sha256`
+Verify the download if in doubt: `shasum -a 256 -c SHA256SUMS --ignore-missing`
 
 ## After a fresh install from the custom image: fix the Steam launcher properly
 
@@ -129,7 +135,7 @@ The recovery image (and therefore any dd-based install from it) ships
 `steam-jupiter-oobe`, whose launcher wipes the entire Steam install on every
 launch. The image patches the launcher to stop the bleeding, but the proper
 fix is installing Valve's real package (needs network; the keyring init is
-one-time — recovery images ship it uninitialized):
+one-time; recovery images ship it uninitialized):
 
 ```bash
 sudo steamos-readonly disable
@@ -142,7 +148,7 @@ sudo steamos-readonly enable
 
 - The image boots with **`amdgpu.dc=1`** everywhere: Display Core runs on
   DCE 6.0 and provides atomic modesetting, so **Gaming Mode (gamescope) works**.
-  (Historic note: earlier revisions used `dc=0` — it turned out to be a no-op;
+  (Historic note: earlier revisions used `dc=0`. It turned out to be a no-op;
   legacy was the default all along, and DC actually works. See README findings.)
 - Desktop session is **Plasma X11** (Wayland's compositor picks the wrong GPU
   on the dual-D300 Mac Pro).
@@ -154,7 +160,7 @@ sudo steamos-readonly enable
   `sudo steamos-readonly disable && sudo pacman-key --init && sudo pacman-key --populate && sudo steamos-readonly enable`
   → take the SteamOS OTA update (Settings → System, or `sudo steamos-update`).
   You land on genuine Valve SteamOS with the SI kernel (self-heal) and all
-  configs (keep-list) carried across automatically — the best end state.
+  configs (keep-list) carried across automatically. The best end state.
 
 ## Uninstall / rollback
 

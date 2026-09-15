@@ -1,6 +1,6 @@
 #!/bin/bash
 # Adds amdgpu.dc=1 to every kernel line in the current slot's grub.cfg (with backup).
-# Run: curl -s http://192.168.86.21:8765/dc-test-on.sh | sudo bash
+# Run: sudo bash dc-test-on.sh
 set -e
 CFG=/efi/EFI/steamos/grub.cfg
 cp -n "$CFG" "$CFG.pre-dc-test"

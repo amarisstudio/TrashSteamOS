@@ -1,9 +1,9 @@
 #!/bin/bash
-# steam-loop-tool.sh — diagnose and (optionally) fix the Steam client
+# steam-loop-tool.sh: diagnose and (optionally) fix the Steam client
 # update/re-login loop on the trash can.
 #
 # Usage (run as deck, NOT with sudo):
-#   bash steam-loop-tool.sh           # report only — changes nothing
+#   bash steam-loop-tool.sh           # report only; changes nothing
 #   bash steam-loop-tool.sh fix       # report + park stale bootstrap.tar.xz
 #
 # Writes a full report next to this script (i.e. onto the USB stick if you
@@ -26,7 +26,7 @@ log "steam-loop-tool $STAMP  mode=$MODE  host=$(uname -r)"
 section "Is Steam running?"
 if pgrep -f "$STEAMROOT" > /dev/null 2>&1 || pgrep -x steam > /dev/null 2>&1; then
     STEAM_RUNNING=1
-    log "YES — Steam appears to be running. Report will proceed; fix will be SKIPPED."
+    log "YES. Steam appears to be running. Report will proceed; fix will be SKIPPED."
     pgrep -af "steam" | head -5 | tee -a "$REPORT"
 else
     STEAM_RUNNING=0
@@ -44,7 +44,7 @@ section "Update channel state (package/)"
 log "beta file: $(cat "$STEAMROOT/package/beta" 2>/dev/null || echo '<missing>')"
 ls -la "$STEAMROOT/package/" 2>/dev/null | head -10 | tee -a "$REPORT"
 
-section "Steam root — what changed recently"
+section "Steam root: what changed recently"
 ls -la "$STEAMROOT" 2>/dev/null | head -25 | tee -a "$REPORT"
 
 section "Bootstrap log (this session's reasoning)"
@@ -75,11 +75,11 @@ if [ "$MODE" = "fix" ]; then
         log "SKIPPED: exit Steam first, then re-run: bash $0 fix"
     elif [ -f "$STEAMROOT/bootstrap.tar.xz" ]; then
         mv -v "$STEAMROOT/bootstrap.tar.xz" "$HOME/parked-bootstrap-$STAMP.tar.xz" | tee -a "$REPORT"
-        log "Parked (not deleted) to ~/parked-bootstrap-$STAMP.tar.xz — reversible with mv."
+        log "Parked (not deleted) to ~/parked-bootstrap-$STAMP.tar.xz, reversible with mv."
         log "NOW: launch Steam. If it opens fast, with no 'packaging update', still logged in"
         log "     (or remembering you after one final login) -> loop confirmed dead."
     else
-        log "Nothing to park — bootstrap.tar.xz not present."
+        log "Nothing to park: bootstrap.tar.xz not present."
     fi
 fi
 

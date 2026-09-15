@@ -6,7 +6,7 @@
 # survives updates via the /etc keep-list.
 #
 # Loop protection: if a restore was already attempted and we're STILL on a
-# stock kernel, something is wrong — stop and leave a log instead of
+# stock kernel, something is wrong. Stop and leave a log instead of
 # reboot-cycling a headless machine.
 set -u
 
@@ -42,7 +42,7 @@ log "Stock kernel detected ($(uname -r)); reinstalling SI-enabled kernel."
 touch "$MARKER"
 
 steamos-readonly disable >> "$LOG" 2>&1
-# Kernel package only (never headers — those need a pahole download and are
+# Kernel package only (never headers: those need a pahole download and are
 # irrelevant for booting; a network hiccup must not break the restore).
 if pacman -U --noconfirm "$PKGDIR"/linux-neptune-616-6.16*-x86_64.pkg.tar.zst >> "$LOG" 2>&1; then
     steamos-readonly enable >> "$LOG" 2>&1

@@ -1,5 +1,10 @@
-251a27f715ca2cf57c5e03795f104aac62b6aefe3727107380b7e1af4e90fb1f  install-si-kernel.sh
-b153a1f4918f5722288d6fa814a6ee3cea10d4ca4df3dc152c2eb433815eecb6  restore-si-kernel.sh
+804809dbb12b0e21a91abe3f1291a742b00fd0567a9e9a05dd5c4f1886977d8d  install-si-kernel.sh
+aad25f94541b05c9e2eac3ccaf0ff216f3ce5b0e2703d1e8f4cf8b62d5d92576  restore-si-kernel.sh
 6a6d4ec58a31582a50a233177aad6cc04cb02c0f0489a8d76baa855b0c30e39c  si-kernel-restore.service
+0ed4d20f9d57c8f72170dd81062c6ee6ed7c80773d7cf5ce3852316f9db1eeb5  fix-this-slot.sh
 11af6fb4ae88dd4a111930ff88f1631db641330f53d588c39f20c00c6621a02a  linux-neptune-616-6.16.12.valve27-2.1-x86_64.pkg.tar.zst
 134f5488eeaf5d5f4fe7364686df294695fd5713366390af2064eab58a7ec533  linux-neptune-616-headers-6.16.12.valve27-2.1-x86_64.pkg.tar.zst
+00520ae94c365341dbe9f8ace1dfde8d90797a2bce232af37b0bb3303e1a5a44  steamos-3.8.14-si-installer.img
+6a756265a8090af9a5ebc05443528c28395815e15056d56ca3c102c5fab3a496  steamos-3.8.14-si-installer.img.xz
+8e4297a7aa8878c66598f9239884e3c269df302ebcf7da11310ad7eec8dc6abe  steamos-3.8.14-si-installer.img.xz.part-aa
+a9319190e2a0f7bc7f6cc4765baec21d9dfb4dc76ab19c48819a58382eb25e5b  steamos-3.8.14-si-installer.img.xz.part-ab
