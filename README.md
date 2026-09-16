@@ -34,7 +34,7 @@ You need: a 2013 Mac Pro, a USB stick of 16 GB or more, a wired keyboard, a
 display on the HDMI port, and a second computer to flash the stick.
 
 1. **Download** the installer image from the
-   [latest release](https://github.com/amarisstudio/TrashSteamOS/releases/latest).
+   [latest release](https://github.com/Legendary-Tech-Club/TrashSteamOS/releases/latest).
    It is split into two parts because GitHub caps release files at 2 GB.
    Join them and check the hash:
 

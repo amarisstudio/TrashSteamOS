@@ -4,7 +4,7 @@ This covers the kernel-only install onto an existing SteamOS system, the
 fresh-install path with the custom image, and how updates are survived.
 
 The binaries (kernel packages and the installer image) are on the
-[GitHub release](https://github.com/amarisstudio/TrashSteamOS/releases/latest).
+[GitHub release](https://github.com/Legendary-Tech-Club/TrashSteamOS/releases/latest).
 Put them together with the scripts from this `artifacts/` folder on a USB stick.
 
 ## What you're installing
