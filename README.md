@@ -233,6 +233,24 @@ docs/superpowers/       The original implementation plan, with notes on what bro
 
 ## Reproducing from source
 
+You do not need to do this to run it; the release has everything built. This is
+for the curious, and for whoever rebuilds when Valve bumps the kernel major.
+
+What it costs:
+
+- Docker (Docker Desktop on macOS or Windows, or plain Docker on Linux) able to
+  run `linux/amd64` containers, some of them privileged. Apple Silicon works via
+  Rosetta.
+- About 10 GB of downloads: roughly 4 GB of kernel git history from the evlaV
+  mirror, Valve's 2 GB compressed recovery image, and the Arch build image.
+- About 40 GB of free disk: the kernel source and objects are close to 30 GB,
+  the pristine and patched images are 8 GB each.
+- Time: roughly 2.5 hours for the kernel on an M1 Max under emulation, less on
+  native x86_64. The image build is a few minutes.
+- The Docker VM needs at least 8 GB of RAM for the kernel build.
+
+Steps:
+
 1. Build the kernel: see [kernel-build/README.md](kernel-build/README.md).
    Docker, `linux/amd64`, expect hours under emulation. Verify
    `CONFIG_DRM_AMDGPU_SI=y` in the final `.config` before compiling; configs
